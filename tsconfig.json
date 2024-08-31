@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext", // Use 'esnext' to support modern JavaScript features
+    "module": "esnext", // Compatible module setting for 'import.meta'
+    "strict": true,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": ["node_modules"]
+}
