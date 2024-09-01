@@ -11,6 +11,7 @@
           <th>Chain ID</th>
           <th>Symbol</th>
           <th>Name</th>
+          <th>Balance</th>
         </tr>
       </thead>
       <tbody v-if="!isLoading">
@@ -18,6 +19,7 @@
           <td>{{ token.chain_id }}</td>
           <td>{{ token.symbol }}</td>
           <td>{{ token.name }}</td>
+          <td>{{ balances[token.symbol] || 'Loading...' }}</td>
         </tr>
       </tbody>
     </table>
@@ -33,19 +35,28 @@ import { useStore } from 'vuex';
 const store = useStore();
 
 const tokens = computed(() => store.getters.tokens || store.state.tokens || []);
-const selectedNetwork = computed(() => store.getters.selectedNetwork);
+const selectedNetworkId = computed(() => store.getters.selectedNetworkId);
 const isLoading = computed(() => store.getters.isLoading);
+const isLoadingBalance = computed(() => store.getters.isLoadingBalance);
 const error = computed(() => store.getters.error);
+const balances = computed(() => store.getters.balances);
 
-watch(selectedNetwork, (newNetwork) => {
-  if (newNetwork) {
-    store.dispatch('fetchTokens', newNetwork);
+const walletAddress = '0x0B1d5f23d1c10708ac0e63AD1e4F104a912eeF6d';
+
+const fetchTokensAndBalances = async (networkId) => {
+  await store.dispatch('fetchTokens', networkId);
+  await store.dispatch('fetchTokenBalances', walletAddress);
+};
+
+watch(selectedNetworkId, (networkId) => {
+  if (networkId) {
+    fetchTokensAndBalances(networkId);
   }
 });
 
 onMounted(() => {
-  if (selectedNetwork.value && store.getters.tokens.length === 0) {
-    store.dispatch('fetchTokens', selectedNetwork.value);
+  if (selectedNetworkId.value) {
+    fetchTokensAndBalances(selectedNetworkId.value);
   }
 });
 </script>
@@ -118,6 +129,33 @@ onMounted(() => {
   width: 24px;
   height: 24px;
   animation: spin 1s linear infinite;
+}
+
+@media screen and (max-width: 375px) {
+  .token-table td {
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: smaller;
+    padding: 1px;
+  }
+  .token-table th {
+    font-size: x-small;
+    padding: 1px;
+  }
+}
+
+@media screen and (max-width: 475px) {
+  .table-container {
+    padding: 0;
+  }
+  .token-table td {
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: small;
+  }
+  .token-table th {
+    font-size: small;
+  }
 }
 
 @keyframes spin {

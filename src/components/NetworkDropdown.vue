@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown-container">
-    <select v-model="selectedNetwork" @change="onNetworkChange" class="network-dropdown">
+    <select v-model="selectedNetworkId" @change="onNetworkChange" class="networks-dropdown">
       <option value="0" selected disabled>--Select Please--</option>
       <option v-for="network in networks" :key="network.chain_id" :value="network.chain_id">
         {{ network.chain_name }}
@@ -15,15 +15,15 @@ import { useStore } from 'vuex';
 
 const store = useStore();
 
-const selectedNetwork = computed({
-  get: () => store.getters.selectedNetwork,
-  set: (value) => store.commit('setSelectedNetwork', value),
+const selectedNetworkId = computed({
+  get: () => store.getters.selectedNetworkId,
+  set: (value) => store.commit('setSelectedNetworkId', value),
 });
 
 const networks = computed(() => store.getters.networks);
 
 const onNetworkChange = () => {
-  store.commit('setSelectedNetwork', selectedNetwork.value);
+  store.commit('setSelectedNetworkId', selectedNetworkId.value);
 };
 
 onMounted(async () => {
@@ -39,7 +39,7 @@ onMounted(async () => {
   align-items: center;
 }
 
-.network-dropdown {
+.networks-dropdown {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -49,7 +49,7 @@ onMounted(async () => {
   transition: border-color 0.3s ease;
 }
 
-.network-dropdown:hover {
+.networks-dropdown:hover {
   border-color: #3498db;
 }
 

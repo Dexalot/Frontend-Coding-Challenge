@@ -1,8 +1,4 @@
 <template>
-  <nav class="nav-bar">
-    <router-link to="/" class="nav-link">Home</router-link>
-    <router-link to="/about" class="nav-link">About</router-link>
-  </nav>
   <main>
     <router-view />
   </main>
@@ -11,6 +7,10 @@
 <script setup></script>
 
 <style scoped>
+#app {
+  display: flex;
+}
+
 .nav-bar {
   display: flex;
   justify-content: center;
