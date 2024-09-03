@@ -23,7 +23,6 @@
         </tr>
       </tbody>
     </table>
-    <div v-if="error">{{ error }}</div>
     <div v-if="tokens.length === 0" class="no-data">No tokens available for the selected network.</div>
   </div>
 </template>
@@ -37,13 +36,12 @@ const store = useStore();
 const tokens = computed(() => store.getters.tokens || store.state.tokens || []);
 const selectedNetworkId = computed(() => store.getters.selectedNetworkId);
 const isLoading = computed(() => store.getters.isLoading);
-const isLoadingBalance = computed(() => store.getters.isLoadingBalance);
-const error = computed(() => store.getters.error);
 const balances = computed(() => store.getters.balances);
 
 const walletAddress = '0x0B1d5f23d1c10708ac0e63AD1e4F104a912eeF6d';
 
 const fetchTokensAndBalances = async (networkId) => {
+  store.commit('setTokenBalances', []);
   await store.dispatch('fetchTokens', networkId);
   await store.dispatch('fetchTokenBalances', walletAddress);
 };
@@ -98,7 +96,6 @@ onMounted(() => {
 .no-data {
   font-size: 16px;
   color: #888;
-  margin-top: 10px;
 }
 
 .spinner-container {
@@ -116,12 +113,6 @@ onMounted(() => {
   background-color: gray;
 }
 
-.error-message {
-  color: red;
-  margin-bottom: 16px;
-  font-size: 14px;
-}
-
 .spinner {
   border: 4px solid #f3f3f3;
   border-top: 4px solid blue;
@@ -131,30 +122,34 @@ onMounted(() => {
   animation: spin 1s linear infinite;
 }
 
-@media screen and (max-width: 375px) {
-  .token-table td {
-    border: 1px solid #ddd;
-    text-align: left;
-    font-size: smaller;
-    padding: 1px;
-  }
-  .token-table th {
-    font-size: x-small;
-    padding: 1px;
-  }
-}
-
-@media screen and (max-width: 475px) {
+@media screen and (max-width: 400px) {
   .table-container {
     padding: 0;
   }
   .token-table td {
     border: 1px solid #ddd;
     text-align: left;
-    font-size: small;
+    font-size: 10px;
+    padding: 5px;
   }
   .token-table th {
-    font-size: small;
+    font-size: 10px;
+    padding: 5px;
+  }
+}
+
+@media screen and (min-width: 400px) and (max-width: 475px) {
+  .table-container {
+    padding: 0;
+  }
+  .token-table td {
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 12px;
+  }
+  .token-table th {
+    font-size: 12px;
+    padding: 5px;
   }
 }
 

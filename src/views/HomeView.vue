@@ -10,5 +10,4 @@ import NetworkDropdown from '@/components/NetworkDropdown.vue';
 import TokenTable from '@/components/TokenTable.vue';
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

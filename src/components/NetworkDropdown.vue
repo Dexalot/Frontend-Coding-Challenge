@@ -43,7 +43,8 @@ onMounted(async () => {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  width: 220px;
+  width: 100%;
+  max-width: 220px;
   font-size: 14px;
   cursor: pointer;
   transition: border-color 0.3s ease;
@@ -53,35 +54,19 @@ onMounted(async () => {
   border-color: #3498db;
 }
 
-.spinner-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  color: #3498db;
-}
-
-.error-message {
-  color: red;
-  margin-bottom: 16px;
-  font-size: 14px;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+@media screen and (max-width: 475px) {
+  .networks-dropdown {
+    padding: 5px;
+    font-size: 12px;
+    max-width: 180px;
   }
-  100% {
-    transform: rotate(360deg);
+}
+
+@media screen and (max-width: 375px) {
+  .networks-dropdown {
+    padding: 3px;
+    font-size: 10px;
+    max-width: 150px;
   }
 }
 </style>

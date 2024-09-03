@@ -2,21 +2,12 @@ import { createStore } from 'vuex';
 import axios from 'axios';
 import { BigNumber, ethers } from 'ethers';
 
-import { Environments, Tokens } from '@/types/fetch';
 import ERC20 from '../../ERC20';
 
-interface State {
-  selectedNetworkId: number;
-  network: Environments;
-  networks: Environments[];
-  isLoading: boolean;
-  isLoadingBalance: boolean;
-  error: string | null;
-  tokens: Tokens[];
-  balances: Record<string, string>;
-}
+import { NetworkStoreState } from '@/types/store-type';
+import { Environments, Tokens } from '@/types/fetch-type';
 
-const store = createStore<State>({
+const store = createStore<NetworkStoreState>({
   state: {
     selectedNetworkId: 0,
     network: {
@@ -37,9 +28,7 @@ const store = createStore<State>({
       token_url: '',
     },
     networks: [],
-    isLoadingBalance: false,
     isLoading: false,
-    error: null,
     tokens: [],
     balances: {},
   },
@@ -50,12 +39,6 @@ const store = createStore<State>({
     },
     setLoading(state, loading: boolean) {
       state.isLoading = loading;
-    },
-    setLoadingBalance(state, loading: boolean) {
-      state.isLoadingBalance = loading;
-    },
-    setError(state, error: string | null) {
-      state.error = error;
     },
     setNetworks(state, networks: Environments[]) {
       state.networks = networks;
@@ -71,7 +54,6 @@ const store = createStore<State>({
     async fetchNetworks({ commit, state }) {
       if (state.networks.length === 0) {
         commit('setLoading', true);
-        commit('setError', null);
         try {
           const response = await axios.get('/api/privapi/trading/environments', {
             headers: {
@@ -79,8 +61,6 @@ const store = createStore<State>({
             },
           });
           commit('setNetworks', response.data);
-        } catch (error) {
-          commit('setError', 'Error fetching networks. Please try again.');
         } finally {
           commit('setLoading', false);
         }
@@ -88,7 +68,6 @@ const store = createStore<State>({
     },
     async fetchTokens({ commit }, networkId) {
       commit('setLoading', true);
-      commit('setError', null);
       try {
         const response = await axios.get('/api/privapi/trading/tokens', {
           headers: {
@@ -97,22 +76,21 @@ const store = createStore<State>({
         });
         const filteredTokens = response.data.filter((token: Tokens) => token.chain_id === networkId);
         commit('setTokens', filteredTokens);
-      } catch (error) {
-        commit('setError', 'Error fetching tokens. Please try again.');
       } finally {
         commit('setLoading', false);
       }
     },
     async fetchTokenBalances({ commit, state }, walletAddress: string) {
-      commit('setLoadingBalance', true);
       const balances: Record<string, string> = { ...state.balances };
 
-      try {
-        for (const token of state.tokens) {
-          const chainReaderUrl = state.network.chain_instance;
-          const provider = new ethers.providers.JsonRpcProvider(chainReaderUrl);
+      for (const token of state.tokens) {
+        const chainReaderUrl = state.network.chain_instance;
+        const provider = new ethers.providers.JsonRpcProvider(chainReaderUrl);
 
-          let balance: BigNumber;
+        let balance: BigNumber;
+        let symbol = token.symbol;
+
+        try {
           if (token.isnative) {
             balance = await provider.getBalance(walletAddress);
           } else {
@@ -121,14 +99,12 @@ const store = createStore<State>({
           }
 
           const displayValue = ethers.utils.formatUnits(balance, token.evmdecimals);
-          balances[token.symbol] = displayValue;
-
-          commit('setTokenBalances', { ...balances });
+          balances[symbol] = displayValue;
+        } catch (balanceError) {
+          balances[symbol] = `Error fetching balance`;
         }
-      } catch (error) {
-        commit('setError', `Error fetching token balances. Please try again.`);
-      } finally {
-        commit('setLoadingBalance', false);
+
+        commit('setTokenBalances', { ...balances });
       }
     },
   },
@@ -136,7 +112,6 @@ const store = createStore<State>({
     selectedNetworkId: (state) => state.selectedNetworkId,
     networks: (state) => state.networks,
     isLoading: (state) => state.isLoading,
-    error: (state) => state.error,
     tokens: (state) => state.tokens,
     balances: (state) => state.balances,
   },
